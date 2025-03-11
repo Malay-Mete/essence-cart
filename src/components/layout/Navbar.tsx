@@ -1,13 +1,14 @@
-
 import { useState, useEffect } from "react";
 import { ShoppingBag, Heart, Search, Menu, X, User, ShoppingCart, Info, Mail, Phone, MapPin, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "react-router-dom";
+import { useCart } from "@/contexts/CartContext";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { getCartCount } = useCart();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,12 +19,10 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu when route changes
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location]);
 
-  // Categories for mobile menu
   const categories = [
     { name: "New Arrivals", path: "/search?category=new" },
     { name: "Furniture", path: "/search?category=furniture" },
@@ -32,7 +31,6 @@ const Navbar = () => {
     { name: "Kitchen", path: "/search?category=kitchen" },
   ];
 
-  // Customer service links
   const customerService = [
     { name: "FAQs", path: "/faq", icon: HelpCircle },
     { name: "Returns", path: "/returns", icon: ShoppingCart },
@@ -68,7 +66,6 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center">
             <ul className="flex items-center gap-8">
               <li>
@@ -139,7 +136,6 @@ const Navbar = () => {
             </ul>
           </nav>
 
-          {/* Mobile Navigation Menu */}
           <div
             className={cn(
               "fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity duration-300",
@@ -147,7 +143,7 @@ const Navbar = () => {
             )}
             onClick={() => setMobileMenuOpen(false)}
           />
-          
+
           <div
             className={cn(
               "fixed top-0 left-0 h-full w-[80%] max-w-sm bg-background z-50 md:hidden overflow-y-auto transition-transform duration-300 ease-in-out transform shadow-lg",
@@ -296,9 +292,11 @@ const Navbar = () => {
               aria-label="Cart"
             >
               <ShoppingBag className="h-5 w-5" />
-              <span className="absolute top-1 right-1 flex items-center justify-center w-4 h-4 bg-primary text-white text-xxs rounded-full">
-                2
-              </span>
+              {getCartCount() > 0 && (
+                <span className="absolute top-1 right-1 flex items-center justify-center w-4 h-4 bg-primary text-white text-[10px] rounded-full">
+                  {getCartCount()}
+                </span>
+              )}
             </Link>
           </div>
         </div>

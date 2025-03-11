@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { ShoppingBag, Heart, Share2, Truck, RotateCw, ShieldCheck } from "lucide-react";
 import { ColorOption } from "./ColorSelector";
@@ -7,6 +6,7 @@ import ColorSelector from "./ColorSelector";
 import SizeSelector from "./SizeSelector";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
 
 interface ProductInfoProps {
   product: {
@@ -27,6 +27,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const { toast } = useToast();
+  const { addToCart } = useCart();
 
   const handleColorChange = (colorId: string) => {
     setSelectedColor(colorId);
@@ -46,7 +47,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
     setQuantity(quantity + 1);
   };
 
-  const addToCart = () => {
+  const addToCartHandler = () => {
     if (!selectedSize) {
       toast({
         title: "Please select a size",
@@ -61,12 +62,21 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
     
     setTimeout(() => {
       setIsAddingToCart(false);
-      // Here you would actually add the item to cart
-      console.log("Added to cart:", {
+      
+      // Get the selected color and size names for display
+      const selectedColorObj = product.colors.find(c => c.id === selectedColor);
+      const selectedSizeObj = product.sizes.find(s => s.id === selectedSize);
+      
+      // Add to cart context
+      addToCart({
+        id: `${product.id}-${selectedColor}-${selectedSize}`,
         productId: product.id,
-        colorId: selectedColor,
-        sizeId: selectedSize,
-        quantity
+        name: product.name,
+        price: product.price,
+        color: selectedColorObj?.name || "",
+        size: selectedSizeObj?.label || "",
+        quantity: quantity,
+        image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
       });
       
       toast({
@@ -154,7 +164,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
       
       <div className="flex flex-col sm:flex-row gap-4">
         <button
-          onClick={addToCart}
+          onClick={addToCartHandler}
           disabled={isAddingToCart}
           className={cn(
             "add-to-cart-button flex-1 flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3 px-5 rounded-md font-medium",

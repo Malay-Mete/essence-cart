@@ -1,37 +1,14 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Minus, Plus, X, ShoppingBag } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-// Dummy cart items
-const initialCartItems = [
-  {
-    id: "1",
-    productId: "minimalist-desk-lamp",
-    name: "Minimalist Desk Lamp",
-    price: 129.99,
-    color: "Matte Black",
-    size: "Medium",
-    quantity: 1,
-    image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
-  },
-  {
-    id: "2",
-    productId: "ceramic-table-lamp",
-    name: "Ceramic Table Lamp",
-    price: 119.99,
-    color: "White",
-    size: "Small",
-    quantity: 2,
-    image: "https://images.unsplash.com/photo-1517991104123-1d56a6e81ed9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
-  }
-];
+import { useCart } from "@/contexts/CartContext";
 
 const CartPage = () => {
-  const [cartItems, setCartItems] = useState(initialCartItems);
+  const { cartItems, updateQuantity, removeItem, clearCart } = useCart();
   const { toast } = useToast();
   
   // Calculate cart totals
@@ -39,19 +16,9 @@ const CartPage = () => {
   const shipping = cartItems.length > 0 ? 10.00 : 0;
   const total = subtotal + shipping;
 
-  const updateQuantity = (itemId: string, newQuantity: number) => {
-    if (newQuantity < 1) return;
-    
-    setCartItems(prev => 
-      prev.map(item => 
-        item.id === itemId ? { ...item, quantity: newQuantity } : item
-      )
-    );
-  };
-
-  const removeItem = (itemId: string) => {
+  const removeItemHandler = (itemId: string) => {
     const itemToRemove = cartItems.find(item => item.id === itemId);
-    setCartItems(prev => prev.filter(item => item.id !== itemId));
+    removeItem(itemId);
     
     if (itemToRemove) {
       toast({
@@ -61,8 +28,8 @@ const CartPage = () => {
     }
   };
 
-  const clearCart = () => {
-    setCartItems([]);
+  const clearCartHandler = () => {
+    clearCart();
     toast({
       title: "Cart cleared",
       description: "All items have been removed from your cart",
@@ -159,7 +126,7 @@ const CartPage = () => {
                           <div className="flex items-center justify-end gap-4">
                             <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
                             <button
-                              onClick={() => removeItem(item.id)}
+                              onClick={() => removeItemHandler(item.id)}
                               className="text-muted-foreground hover:text-destructive transition-colors"
                               aria-label="Remove item"
                             >
@@ -181,7 +148,7 @@ const CartPage = () => {
                   ← Continue Shopping
                 </Link>
                 <button
-                  onClick={clearCart}
+                  onClick={clearCartHandler}
                   className="text-sm font-medium flex items-center gap-1 text-muted-foreground hover:text-destructive transition-colors"
                 >
                   Clear Cart
