@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { ShoppingBag, Heart, Search, Menu, X } from "lucide-react";
+import { ShoppingBag, Heart, Search, Menu, X, User, ShoppingCart, Info, Mail, Phone, MapPin, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "react-router-dom";
 
@@ -22,6 +22,23 @@ const Navbar = () => {
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location]);
+
+  // Categories for mobile menu
+  const categories = [
+    { name: "New Arrivals", path: "/search?category=new" },
+    { name: "Furniture", path: "/search?category=furniture" },
+    { name: "Lighting", path: "/search?category=lighting" },
+    { name: "Decor", path: "/search?category=decor" },
+    { name: "Kitchen", path: "/search?category=kitchen" },
+  ];
+
+  // Customer service links
+  const customerService = [
+    { name: "FAQs", path: "/faq", icon: HelpCircle },
+    { name: "Returns", path: "/returns", icon: ShoppingCart },
+    { name: "Contact Us", path: "/contact", icon: Mail },
+    { name: "About Us", path: "/about", icon: Info },
+  ];
 
   return (
     <header
@@ -51,15 +68,9 @@ const Navbar = () => {
             </Link>
           </div>
 
-          <nav
-            className={cn(
-              "absolute md:relative top-full left-0 w-full md:w-auto bg-background md:bg-transparent border-b md:border-0 border-border md:flex transition-all duration-300 ease-in-out transform origin-top",
-              mobileMenuOpen
-                ? "opacity-100 scale-y-100 shadow-sm"
-                : "opacity-0 scale-y-0 md:opacity-100 md:scale-y-100 pointer-events-none md:pointer-events-auto"
-            )}
-          >
-            <ul className="flex flex-col md:flex-row items-start md:items-center gap-y-4 gap-x-8 p-4 md:p-0">
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center">
+            <ul className="flex items-center gap-8">
               <li>
                 <Link
                   to="/"
@@ -127,6 +138,142 @@ const Navbar = () => {
               </li>
             </ul>
           </nav>
+
+          {/* Mobile Navigation Menu */}
+          <div
+            className={cn(
+              "fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity duration-300",
+              mobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+            )}
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          
+          <div
+            className={cn(
+              "fixed top-0 left-0 h-full w-[80%] max-w-sm bg-background z-50 md:hidden overflow-y-auto transition-transform duration-300 ease-in-out transform shadow-lg",
+              mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+            )}
+          >
+            <div className="flex items-center justify-between p-4 border-b">
+              <Link to="/" className="text-xl font-medium" onClick={() => setMobileMenuOpen(false)}>
+                ESSENCE
+              </Link>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Close menu"
+                className="p-2 rounded-full hover:bg-muted transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <div className="p-4">
+              <div className="mb-6">
+                <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-3">
+                  Main Menu
+                </h3>
+                <ul className="space-y-2">
+                  <li>
+                    <Link
+                      to="/"
+                      className={cn(
+                        "block py-2 px-4 rounded-md transition-colors hover:bg-muted",
+                        location.pathname === "/" && "bg-primary text-primary-foreground hover:bg-primary/90"
+                      )}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Home
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/search"
+                      className={cn(
+                        "block py-2 px-4 rounded-md transition-colors hover:bg-muted",
+                        location.pathname === "/search" && "bg-primary text-primary-foreground hover:bg-primary/90"
+                      )}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Shop All
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/liked"
+                      className={cn(
+                        "block py-2 px-4 rounded-md transition-colors hover:bg-muted",
+                        location.pathname === "/liked" && "bg-primary text-primary-foreground hover:bg-primary/90"
+                      )}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Saved Items
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/cart"
+                      className={cn(
+                        "block py-2 px-4 rounded-md transition-colors hover:bg-muted",
+                        location.pathname === "/cart" && "bg-primary text-primary-foreground hover:bg-primary/90"
+                      )}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Cart
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+              
+              <div className="mb-6">
+                <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-3">
+                  Shop by Category
+                </h3>
+                <ul className="space-y-2">
+                  {categories.map((category) => (
+                    <li key={category.name}>
+                      <Link
+                        to={category.path}
+                        className="block py-2 px-4 rounded-md transition-colors hover:bg-muted"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {category.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div className="mb-6">
+                <h3 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-3">
+                  Customer Service
+                </h3>
+                <ul className="space-y-2">
+                  {customerService.map((item) => (
+                    <li key={item.name}>
+                      <Link
+                        to={item.path}
+                        className="flex items-center py-2 px-4 rounded-md transition-colors hover:bg-muted"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <item.icon className="h-4 w-4 mr-3" />
+                        {item.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div className="pt-4 border-t">
+                <Link
+                  to="/subscribe"
+                  className="block w-full py-3 px-4 bg-primary text-primary-foreground rounded-md text-center font-medium hover:bg-primary/90 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Subscribe to Newsletter
+                </Link>
+              </div>
+            </div>
+          </div>
 
           <div className="flex items-center gap-4">
             <Link
