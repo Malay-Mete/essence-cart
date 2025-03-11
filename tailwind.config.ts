@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -120,7 +119,7 @@ export default {
 				'xxs': '0.625rem'
 			},
 			transitionTimingFunction: {
-				'ease-spring': 'cubic-bezier(0.22, 1, 0.36, 1)'
+				'spring': 'cubic-bezier(0.22, 1, 0.36, 1)'
 			}
 		}
 	},
