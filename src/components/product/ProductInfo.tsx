@@ -6,6 +6,7 @@ import { SizeOption } from "./SizeSelector";
 import ColorSelector from "./ColorSelector";
 import SizeSelector from "./SizeSelector";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProductInfoProps {
   product: {
@@ -24,6 +25,8 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
   const [selectedSize, setSelectedSize] = useState(product.sizes.find(size => size.inStock)?.id || "");
   const [quantity, setQuantity] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const { toast } = useToast();
 
   const handleColorChange = (colorId: string) => {
     setSelectedColor(colorId);
@@ -44,6 +47,15 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
   };
 
   const addToCart = () => {
+    if (!selectedSize) {
+      toast({
+        title: "Please select a size",
+        description: "You need to select a size before adding to cart",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Simulate adding to cart
     setIsAddingToCart(true);
     
@@ -56,7 +68,42 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
         sizeId: selectedSize,
         quantity
       });
+      
+      toast({
+        title: "Added to cart",
+        description: `${quantity} x ${product.name} added to your cart`,
+      });
     }, 800);
+  };
+  
+  const toggleLike = () => {
+    setIsLiked(!isLiked);
+    
+    toast({
+      title: isLiked ? "Removed from saved items" : "Added to saved items",
+      description: isLiked 
+        ? `${product.name} has been removed from your saved items` 
+        : `${product.name} has been added to your saved items`,
+    });
+  };
+  
+  const shareProduct = () => {
+    // Implement share functionality
+    if (navigator.share) {
+      navigator.share({
+        title: product.name,
+        text: product.description,
+        url: window.location.href,
+      }).catch(console.error);
+    } else {
+      // Fallback for browsers that don't support the Web Share API
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        toast({
+          title: "Link copied",
+          description: "Product link copied to clipboard",
+        });
+      });
+    }
   };
 
   return (
@@ -108,10 +155,10 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
       <div className="flex flex-col sm:flex-row gap-4">
         <button
           onClick={addToCart}
-          disabled={!selectedSize || isAddingToCart}
+          disabled={isAddingToCart}
           className={cn(
             "add-to-cart-button flex-1 flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3 px-5 rounded-md font-medium",
-            (!selectedSize || isAddingToCart) && "opacity-70 cursor-not-allowed"
+            isAddingToCart && "opacity-70 cursor-not-allowed"
           )}
         >
           {isAddingToCart ? (
@@ -128,13 +175,18 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
         </button>
         
         <button
-          className="flex items-center justify-center gap-2 border border-border py-3 px-5 rounded-md font-medium hover:border-primary transition-colors duration-300"
+          onClick={toggleLike}
+          className={cn(
+            "flex items-center justify-center gap-2 border border-border py-3 px-5 rounded-md font-medium transition-colors duration-300",
+            isLiked ? "bg-primary/10 border-primary text-primary" : "hover:border-primary"
+          )}
         >
-          <Heart className="h-5 w-5" />
-          <span className="sr-only sm:not-sr-only">Save</span>
+          <Heart className={cn("h-5 w-5", isLiked && "fill-primary")} />
+          <span className="sr-only sm:not-sr-only">{isLiked ? "Saved" : "Save"}</span>
         </button>
         
         <button
+          onClick={shareProduct}
           className="flex items-center justify-center gap-2 border border-border py-3 px-5 rounded-md font-medium hover:border-primary transition-colors duration-300"
         >
           <Share2 className="h-5 w-5" />

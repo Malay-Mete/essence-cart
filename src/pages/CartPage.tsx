@@ -1,12 +1,13 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Minus, Plus, X, ShoppingBag } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 // Dummy cart items
-const cartItems = [
+const initialCartItems = [
   {
     id: "1",
     productId: "minimalist-desk-lamp",
@@ -30,10 +31,51 @@ const cartItems = [
 ];
 
 const CartPage = () => {
+  const [cartItems, setCartItems] = useState(initialCartItems);
+  const { toast } = useToast();
+  
   // Calculate cart totals
   const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  const shipping = 10.00;
+  const shipping = cartItems.length > 0 ? 10.00 : 0;
   const total = subtotal + shipping;
+
+  const updateQuantity = (itemId: string, newQuantity: number) => {
+    if (newQuantity < 1) return;
+    
+    setCartItems(prev => 
+      prev.map(item => 
+        item.id === itemId ? { ...item, quantity: newQuantity } : item
+      )
+    );
+  };
+
+  const removeItem = (itemId: string) => {
+    const itemToRemove = cartItems.find(item => item.id === itemId);
+    setCartItems(prev => prev.filter(item => item.id !== itemId));
+    
+    if (itemToRemove) {
+      toast({
+        title: "Item removed",
+        description: `${itemToRemove.name} has been removed from your cart`,
+      });
+    }
+  };
+
+  const clearCart = () => {
+    setCartItems([]);
+    toast({
+      title: "Cart cleared",
+      description: "All items have been removed from your cart",
+    });
+  };
+
+  const proceedToCheckout = () => {
+    toast({
+      title: "Checkout initiated",
+      description: "Proceeding to payment...",
+    });
+    // Here you would navigate to checkout
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -95,6 +137,7 @@ const CartPage = () => {
                         <td className="py-4 px-2">
                           <div className="flex items-center justify-center">
                             <button
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
                               className="w-8 h-8 flex items-center justify-center border border-border rounded-l-md hover:bg-muted transition-colors"
                               aria-label="Decrease quantity"
                             >
@@ -104,6 +147,7 @@ const CartPage = () => {
                               {item.quantity}
                             </div>
                             <button
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
                               className="w-8 h-8 flex items-center justify-center border border-border rounded-r-md hover:bg-muted transition-colors"
                               aria-label="Increase quantity"
                             >
@@ -115,6 +159,7 @@ const CartPage = () => {
                           <div className="flex items-center justify-end gap-4">
                             <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
                             <button
+                              onClick={() => removeItem(item.id)}
                               className="text-muted-foreground hover:text-destructive transition-colors"
                               aria-label="Remove item"
                             >
@@ -136,6 +181,7 @@ const CartPage = () => {
                   ← Continue Shopping
                 </Link>
                 <button
+                  onClick={clearCart}
                   className="text-sm font-medium flex items-center gap-1 text-muted-foreground hover:text-destructive transition-colors"
                 >
                   Clear Cart
@@ -164,6 +210,7 @@ const CartPage = () => {
                 </div>
                 
                 <button
+                  onClick={proceedToCheckout}
                   className="w-full bg-primary text-primary-foreground py-3 rounded-md font-medium hover:bg-primary/90 transition-colors"
                 >
                   Proceed to Checkout

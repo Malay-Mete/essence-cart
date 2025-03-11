@@ -1,12 +1,13 @@
 
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Link } from "react-router-dom";
 import { Heart, ShoppingBag, Trash } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 // Dummy liked products
-const likedProducts = [
+const initialLikedProducts = [
   {
     id: "minimalist-desk-lamp",
     name: "Minimalist Desk Lamp",
@@ -31,6 +32,26 @@ const likedProducts = [
 ];
 
 const LikedPage = () => {
+  const [likedProducts, setLikedProducts] = useState(initialLikedProducts);
+  const { toast } = useToast();
+
+  const removeFromLiked = (productId: string) => {
+    setLikedProducts(prev => prev.filter(product => product.id !== productId));
+    toast({
+      title: "Removed from saved items",
+      description: "Product has been removed from your saved items",
+    });
+  };
+
+  const addToCart = (product: typeof initialLikedProducts[0]) => {
+    // Simulate adding to cart
+    console.log("Added to cart:", product);
+    toast({
+      title: "Added to cart",
+      description: `${product.name} added to your cart`,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
@@ -55,14 +76,15 @@ const LikedPage = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {likedProducts.map(product => (
-              <div key={product.id} className="border border-border rounded-lg overflow-hidden">
+              <div key={product.id} className="border border-border rounded-lg overflow-hidden group">
                 <div className="aspect-square relative">
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                   <button
+                    onClick={() => removeFromLiked(product.id)}
                     className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full shadow-sm text-primary hover:bg-white transition-colors"
                     aria-label="Remove from saved items"
                   >
@@ -83,6 +105,7 @@ const LikedPage = () => {
                   </div>
                   
                   <button
+                    onClick={() => addToCart(product)}
                     className="w-full bg-primary text-primary-foreground py-2 rounded-md font-medium flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors"
                   >
                     <ShoppingBag className="h-4 w-4" />
